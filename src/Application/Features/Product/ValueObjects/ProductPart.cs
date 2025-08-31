@@ -1,5 +1,7 @@
 using Application.Features.Part.ValueObjects;
 using Library;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Application.Features.Product.ValueObjects;
 
@@ -37,4 +39,26 @@ public class ProductPart
 
     internal static ProductPart FromTrustedSource(PartSku partSku, Quantity quantity) =>
         new(partSku, quantity);
+}
+
+public class ProductPartJsonConverter : JsonConverter<ProductPart>
+{
+    public override ProductPart Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var root = doc.RootElement;
+
+        var partSku = PartSku.Create(root.GetProperty("PartSku").GetString()!).Value;
+        var quantity = Quantity.Create(root.GetProperty("Quantity").GetInt32()).Value;
+
+        return ProductPart.FromTrustedSource(partSku, quantity);
+    }
+
+    public override void Write(Utf8JsonWriter writer, ProductPart value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("PartSku", value.PartSku.Value);
+        writer.WriteNumber("Quantity", value.Quantity.Value);
+        writer.WriteEndObject();
+    }
 }
