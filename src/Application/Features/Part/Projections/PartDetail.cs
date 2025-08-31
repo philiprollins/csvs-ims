@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Part.Projections;
 
-public class PartDetail
+public class PartDetailReadModel
 {
     public string Sku { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
@@ -13,10 +13,10 @@ public class PartDetail
     public DateTime CreatedAt { get; set; }
     public DateTime LastModified { get; set; }
     
-    public List<PartTransaction> Transactions { get; set; } = new();
+    public List<PartTransactionReadModel> Transactions { get; set; } = new();
 }
 
-public class PartTransaction
+public class PartTransactionReadModel
 {
     public int Id { get; set; }
     public string PartSku { get; set; } = string.Empty;
@@ -27,7 +27,7 @@ public class PartTransaction
     public string Justification { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; }
     
-    public PartDetail Part { get; set; } = null!;
+    public PartDetailReadModel Part { get; set; } = null!;
 }
 
 public class PartDetailProjection(PartsDbContext db) :
@@ -42,7 +42,7 @@ public class PartDetailProjection(PartsDbContext db) :
         var existingPart = await db.PartDetails.SingleOrDefaultAsync(p => p.Sku == @event.Sku.Value, cancellationToken);
         if (existingPart == null)
         {
-            var part = new PartDetail
+            var part = new PartDetailReadModel
             {
                 Sku = @event.Sku.Value,
                 Name = @event.Name.Value,
@@ -68,7 +68,7 @@ public class PartDetailProjection(PartsDbContext db) :
             part.Quantity += @event.Quantity.Value;
             part.LastModified = @event.Timestamp;
             
-            var transaction = new PartTransaction
+            var transaction = new PartTransactionReadModel
             {
                 PartSku = @event.Sku.Value,
                 Type = "ACQUIRED",
@@ -97,7 +97,7 @@ public class PartDetailProjection(PartsDbContext db) :
             part.Quantity -= @event.Quantity.Value;
             part.LastModified = @event.Timestamp;
             
-            var transaction = new PartTransaction
+            var transaction = new PartTransactionReadModel
             {
                 PartSku = @event.Sku.Value,
                 Type = "CONSUMED",
@@ -129,7 +129,7 @@ public class PartDetailProjection(PartsDbContext db) :
         part.Quantity = quantityAfter;
         part.LastModified = @event.Timestamp;
         
-        var transaction = new PartTransaction
+        var transaction = new PartTransactionReadModel
         {
             PartSku = @event.Sku.Value,
             Type = "RECOUNTED",

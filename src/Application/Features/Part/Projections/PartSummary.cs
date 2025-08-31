@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Part.Projections;
 
-public class PartSummary
+public class PartSummaryReadModel
 {
     public string Sku { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
@@ -24,7 +24,7 @@ public class PartSummaryProjection(PartsDbContext db) :
         var part = await db.PartSummary.SingleOrDefaultAsync(p => p.Sku == @event.Sku.Value, cancellationToken);
         if (part == null)
         {
-            part = new PartSummary { Sku = @event.Sku.Value };
+            part = new PartSummaryReadModel { Sku = @event.Sku.Value };
             db.PartSummary.Add(part);
         }
         part.Name = @event.Name;
