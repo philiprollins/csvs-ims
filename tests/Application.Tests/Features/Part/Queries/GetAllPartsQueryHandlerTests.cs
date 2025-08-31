@@ -141,7 +141,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
         await _partsDbContext.SaveChangesAsync();
 
         // Add test parts
-        var part1 = new PartSummary
+        var part1 = new PartSummaryReadModel
         {
             Sku = "ABC-123",
             Name = "Widget A",
@@ -150,7 +150,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
             SourceUri = "https://supplier.com"
         };
 
-        var part2 = new PartSummary
+        var part2 = new PartSummaryReadModel
         {
             Sku = "XYZ-789",
             Name = "Widget B",

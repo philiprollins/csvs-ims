@@ -52,7 +52,7 @@ public class PartSummaryProjectionTests : IDisposable
         var @event = new PartDefinedEvent(sku, name);
 
         // Pre-create a part summary
-        _dbContext.PartSummary.Add(new PartSummary { Sku = "ABC-123", Name = "Old Name", Quantity = 10 });
+        _dbContext.PartSummary.Add(new PartSummaryReadModel { Sku = "ABC-123", Name = "Old Name", Quantity = 10 });
         await _dbContext.SaveChangesAsync();
 
         // Act
@@ -75,7 +75,7 @@ public class PartSummaryProjectionTests : IDisposable
         var @event = new PartAcquiredEvent(sku, quantity, "Initial stock");
 
         // Pre-create a part summary
-        _dbContext.PartSummary.Add(new PartSummary { Sku = "ABC-123", Name = "Widget A", Quantity = 10 });
+        _dbContext.PartSummary.Add(new PartSummaryReadModel { Sku = "ABC-123", Name = "Widget A", Quantity = 10 });
         await _dbContext.SaveChangesAsync();
 
         // Act
@@ -112,7 +112,7 @@ public class PartSummaryProjectionTests : IDisposable
         var @event = new PartConsumedEvent(sku, quantity, "Used in production");
 
         // Pre-create a part summary
-        _dbContext.PartSummary.Add(new PartSummary { Sku = "ABC-123", Name = "Widget A", Quantity = 100 });
+        _dbContext.PartSummary.Add(new PartSummaryReadModel { Sku = "ABC-123", Name = "Widget A", Quantity = 100 });
         await _dbContext.SaveChangesAsync();
 
         // Act
@@ -149,7 +149,7 @@ public class PartSummaryProjectionTests : IDisposable
         var @event = new PartRecountedEvent(sku, quantity, "Physical count");
 
         // Pre-create a part summary
-        _dbContext.PartSummary.Add(new PartSummary { Sku = "ABC-123", Name = "Widget A", Quantity = 100 });
+        _dbContext.PartSummary.Add(new PartSummaryReadModel { Sku = "ABC-123", Name = "Widget A", Quantity = 100 });
         await _dbContext.SaveChangesAsync();
 
         // Act
@@ -186,7 +186,7 @@ public class PartSummaryProjectionTests : IDisposable
         var @event = new PartSourceUpdatedEvent(sku, source);
 
         // Pre-create a part summary
-        _dbContext.PartSummary.Add(new PartSummary { Sku = "ABC-123", Name = "Widget A", Quantity = 50 });
+        _dbContext.PartSummary.Add(new PartSummaryReadModel { Sku = "ABC-123", Name = "Widget A", Quantity = 50 });
         await _dbContext.SaveChangesAsync();
 
         // Act

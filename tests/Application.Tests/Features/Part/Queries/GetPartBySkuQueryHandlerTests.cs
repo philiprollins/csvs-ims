@@ -153,7 +153,7 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
         await _partsDbContext.SaveChangesAsync();
 
         // Add test parts
-        var part1 = new PartDetail
+        var part1 = new PartDetailReadModel
         {
             Sku = "ABC-123",
             Name = "Widget A",
@@ -162,10 +162,10 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
             SourceUri = "https://supplier.com",
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             LastModified = DateTime.UtcNow,
-            Transactions = new List<PartTransaction>()
+            Transactions = new List<PartTransactionReadModel>()
         };
 
-        var part2 = new PartDetail
+        var part2 = new PartDetailReadModel
         {
             Sku = "XYZ-789",
             Name = "Widget B",
@@ -174,7 +174,7 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
             SourceUri = "",
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             LastModified = DateTime.UtcNow,
-            Transactions = new List<PartTransaction>()
+            Transactions = new List<PartTransactionReadModel>()
         };
 
         _partsDbContext.PartDetails.AddRange(part1, part2);
@@ -189,7 +189,7 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
         await _partsDbContext.SaveChangesAsync();
 
         // Create part
-        var part = new PartDetail
+        var part = new PartDetailReadModel
         {
             Sku = "ABC-123",
             Name = "Widget A",
@@ -198,14 +198,14 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
             SourceUri = "https://supplier.com",
             CreatedAt = DateTime.UtcNow.AddDays(-2),
             LastModified = DateTime.UtcNow,
-            Transactions = new List<PartTransaction>()
+            Transactions = new List<PartTransactionReadModel>()
         };
 
         _partsDbContext.PartDetails.Add(part);
         await _partsDbContext.SaveChangesAsync();
 
         // Add transactions
-        var transaction1 = new PartTransaction
+        var transaction1 = new PartTransactionReadModel
         {
             PartSku = "ABC-123",
             Type = "ACQUIRED",
@@ -217,7 +217,7 @@ public class GetPartBySkuQueryHandlerTests : IDisposable
             Part = part
         };
 
-        var transaction2 = new PartTransaction
+        var transaction2 = new PartTransactionReadModel
         {
             PartSku = "ABC-123",
             Type = "CONSUMED",
