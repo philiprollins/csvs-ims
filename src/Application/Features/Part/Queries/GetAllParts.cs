@@ -1,5 +1,5 @@
-using Application.Features.Part.Projections;
 using Library.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Part.Queries;
 
@@ -12,7 +12,7 @@ public class GetAllPartsQuery : IQuery<GetAllPartsResult>
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
-        if (pageSize > 100) pageSize = 100; // Max page size
+        if (pageSize > 100) pageSize = 100;
 
         return new GetAllPartsQuery { Page = page, PageSize = pageSize };
     }
@@ -20,7 +20,7 @@ public class GetAllPartsQuery : IQuery<GetAllPartsResult>
 
 public class GetAllPartsResult
 {
-    public List<PartSummaryDto> Items { get; set; } = new();
+    public List<PartSummaryDto> Items { get; set; } = [];
     public PaginationMeta Meta { get; set; } = new();
 }
 
@@ -39,4 +39,41 @@ public class PaginationMeta
     public int PageSize { get; set; }
     public int TotalItems { get; set; }
     public int TotalPages { get; set; }
+}
+
+public class GetAllPartsQueryHandler(PartsDbContext dbContext)
+    : IQueryHandler<GetAllPartsQuery, GetAllPartsResult>
+{
+    public async Task<GetAllPartsResult> HandleAsync(GetAllPartsQuery query, CancellationToken cancellationToken)
+    {
+        var totalItems = await dbContext.PartSummary.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling((double)totalItems / query.PageSize);
+
+        var parts = await dbContext.PartSummary
+            .OrderBy(p => p.Sku)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = parts.Select(p => new PartSummaryDto
+        {
+            Sku = p.Sku,
+            Name = p.Name,
+            Quantity = p.Quantity,
+            SourceName = string.IsNullOrEmpty(p.SourceName) ? null : p.SourceName,
+            SourceUri = string.IsNullOrEmpty(p.SourceUri) ? null : p.SourceUri
+        }).ToList();
+
+        return new GetAllPartsResult
+        {
+            Items = items,
+            Meta = new PaginationMeta
+            {
+                Page = query.Page,
+                PageSize = query.PageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            }
+        };
+    }
 }
