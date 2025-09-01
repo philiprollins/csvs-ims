@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/Api/Dockerfile
+    ports:
+      - "5204:80"
+      - "7074:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    networks:
+      - wasm-network
+
+  client:
+    build:
+      context: .
+      dockerfile: src/Client/Dockerfile
+    ports:
+      - "5202:80"
+    depends_on:
+      - api
+    networks:
+      - wasm-network
+
+networks:
+  wasm-network:
+    driver: bridge
