@@ -10,7 +10,10 @@ services:
       - "7074:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PartsDb=Host=db;Database=partsdb;Username=postgres;Password=postgres
+    depends_on:
+      - db
     networks:
       - wasm-network
 
@@ -24,6 +27,22 @@ services:
       - api
     networks:
       - wasm-network
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=partsdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wasm-network
+
+volumes:
+  postgres_data:
 
 networks:
   wasm-network:

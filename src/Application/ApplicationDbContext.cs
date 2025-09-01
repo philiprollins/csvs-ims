@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 public class PartsDbContext(DbContextOptions<PartsDbContext> options) : DbContext(options)
 {
-    public DbSet<Event> Events { get; set; } = null!;
     public DbSet<PartSummaryReadModel> PartSummary { get; set; } = null!;
     public DbSet<PartDetailReadModel> PartDetails { get; set; } = null!;
     public DbSet<PartTransactionReadModel> PartTransactions { get; set; } = null!;
@@ -17,7 +16,6 @@ public class PartsDbContext(DbContextOptions<PartsDbContext> options) : DbContex
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Event>().HasKey(e => e.AggregateId);
         modelBuilder.Entity<PartSummaryReadModel>().HasKey(p => p.Sku);
 
         // PartDetail configuration

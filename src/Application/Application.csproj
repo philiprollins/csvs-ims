@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Library\Library.csproj" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
   </ItemGroup>
 
   <PropertyGroup>
