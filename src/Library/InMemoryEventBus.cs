@@ -4,10 +4,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Library;
 
+/// <summary>
+/// In-memory implementation of the event bus.
+/// </summary>
 public class InMemoryEventBus(IServiceProvider provider, ILogger<InMemoryEventBus> logger) : IEventBus
 {
     private readonly IServiceProvider _provider = provider;
 
+    /// <summary>
+    /// Dispatches a single event to all registered handlers.
+    /// </summary>
+    /// <param name="event">The event to dispatch.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public async Task DispatchAsync(Event @event, CancellationToken cancellationToken = default)
     {
         var eventType = @event.GetType();
@@ -42,6 +50,11 @@ public class InMemoryEventBus(IServiceProvider provider, ILogger<InMemoryEventBu
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Dispatches multiple events to all registered handlers.
+    /// </summary>
+    /// <param name="events">The events to dispatch.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public async Task DispatchManyAsync(IEnumerable<Event> events, CancellationToken cancellationToken = default)
     {
         foreach (var @event in events)

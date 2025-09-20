@@ -6,14 +6,33 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Library;
 
+/// <summary>
+/// Provides extension methods for configuring dependency injection.
+/// </summary>
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Adds the in-memory event bus to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddInMemoryEventBus(this IServiceCollection services) =>
         services.AddSingleton<IEventBus, InMemoryEventBus>();
 
+    /// <summary>
+    /// Adds the aggregate repository to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddAggregateRepository(this IServiceCollection services) =>
         services.AddScoped(typeof(IAggregateRepository<>), typeof(AggregateRepository<>));
 
+    /// <summary>
+    /// Registers event handlers from the specified assembly.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="assembly">The assembly to scan for event handlers.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection RegisterProjections(this IServiceCollection services, Assembly assembly)
     {
         var handlerType = typeof(IEventHandler<>);
@@ -33,6 +52,12 @@ public static class DependencyInjection
         return services;
     }
 
+    /// <summary>
+    /// Adds the event store to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="valueObjectAssembly">The assembly containing value objects and converters.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddEventStore(this IServiceCollection services, Assembly valueObjectAssembly)
     {
         var jsonOptions = new JsonSerializerOptions
