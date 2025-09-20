@@ -173,7 +173,7 @@ public class GetProductBySkuQueryHandlerTests : IDisposable
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains("sku", result.Errors);
-        Assert.Equal("SKU cannot be empty", result.Errors["sku"]);
+        Assert.Equal("Product SKU cannot be empty", result.Errors["sku"]);
 
         return Task.CompletedTask;
     }
@@ -187,7 +187,7 @@ public class GetProductBySkuQueryHandlerTests : IDisposable
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains("sku", result.Errors);
-        Assert.Equal("SKU cannot be empty", result.Errors["sku"]);
+        Assert.Equal("Product SKU cannot be empty", result.Errors["sku"]);
 
         return Task.CompletedTask;
     }
