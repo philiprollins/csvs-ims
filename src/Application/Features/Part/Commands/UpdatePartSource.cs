@@ -4,13 +4,8 @@ using Library.Interfaces;
 
 namespace Application.Features.Part.Commands;
 
-public class UpdatePartSourceCommand : ICommand
+public sealed record UpdatePartSourceCommand(PartSku Sku, PartSource Source) : ICommand
 {
-    public PartSku Sku { get; set; } = null!;
-    public PartSource Source { get; set; } = null!;
-
-    private UpdatePartSourceCommand() { }
-
     public static Result<UpdatePartSourceCommand> Create(string sku, string sourceName, string sourceUri)
     {
         var skuResult = PartSku.Create(sku);
@@ -21,11 +16,10 @@ public class UpdatePartSourceCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<UpdatePartSourceCommand>(combined.Errors);
 
-        return Result.Ok(new UpdatePartSourceCommand
-        {
-            Sku = skuResult.Value,
-            Source = sourceResult.Value
-        });
+        return Result.Ok(new UpdatePartSourceCommand(
+            skuResult.Value,
+            sourceResult.Value
+        ));
     }
 }
 

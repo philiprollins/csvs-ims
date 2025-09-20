@@ -1,22 +1,21 @@
+using Application.Features.Part.ValueObjects;
 using Application.Features.Product.Projections;
+using Application.Features.Product.ValueObjects;
 using Library;
 using Library.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Product.Queries;
 
-public class GetProductBySkuQuery : IQuery<Result<ProductDetailReadModel?>>
+public sealed record GetProductBySkuQuery(ProductSku Sku) : IQuery<Result<ProductDetailReadModel?>>
 {
-    public string Sku { get; set; } = string.Empty;
-
-    private GetProductBySkuQuery() { }
-
     public static Result<GetProductBySkuQuery> Create(string sku)
     {
-        if (string.IsNullOrWhiteSpace(sku))
-            return Result.Fail<GetProductBySkuQuery>("sku", "SKU cannot be empty");
+        var result = ProductSku.Create(sku);
+        if (result.IsFailure)
+            return Result.Fail<GetProductBySkuQuery>(result.Errors);
 
-        return Result.Ok(new GetProductBySkuQuery { Sku = sku });
+        return Result.Ok(new GetProductBySkuQuery(result.Value));
     }
 }
 

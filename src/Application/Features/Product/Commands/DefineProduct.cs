@@ -4,13 +4,8 @@ using Library.Interfaces;
 
 namespace Application.Features.Product.Commands;
 
-public class DefineProductCommand : ICommand
+public sealed record DefineProductCommand(ProductSku Sku, ProductName Name) : ICommand
 {
-    public ProductSku Sku { get; set; } = null!;
-    public ProductName Name { get; set; } = null!;
-
-    private DefineProductCommand() { }
-
     public static Result<DefineProductCommand> Create(string sku, string name)
     {
         var skuResult = ProductSku.Create(sku);
@@ -21,11 +16,7 @@ public class DefineProductCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<DefineProductCommand>(combined.Errors);
 
-        return Result.Ok(new DefineProductCommand
-        {
-            Sku = skuResult.Value,
-            Name = nameResult.Value
-        });
+        return Result.Ok(new DefineProductCommand(skuResult.Value, nameResult.Value));
     }
 }
 

@@ -5,22 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Part.Queries;
 
-public class GetPartBySkuQuery : IQuery<Result<GetPartBySkuResult>>
+public sealed record GetPartBySkuQuery(PartSku Sku) : IQuery<Result<GetPartBySkuResult>>
 {
-    public PartSku Sku { get; set; } = null!;
-
-    private GetPartBySkuQuery() { }
-
     public static Result<GetPartBySkuQuery> Create(string sku)
     {
         var skuResult = PartSku.Create(sku);
         if (skuResult.IsFailure)
             return Result.Fail<GetPartBySkuQuery>(skuResult.Errors);
 
-        return Result.Ok(new GetPartBySkuQuery
-        {
-            Sku = skuResult.Value
-        });
+        return Result.Ok(new GetPartBySkuQuery(skuResult.Value));
     }
 }
 

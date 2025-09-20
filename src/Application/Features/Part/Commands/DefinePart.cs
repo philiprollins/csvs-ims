@@ -4,13 +4,8 @@ using Library.Interfaces;
 
 namespace Application.Features.Part.Commands;
 
-public class DefinePartCommand : ICommand
+public sealed record DefinePartCommand(PartSku Sku, PartName Name) : ICommand
 {
-    public PartSku Sku { get; set; } = null!;
-    public PartName Name { get; set; } = null!;
-
-    private DefinePartCommand() { }
-
     public static Result<DefinePartCommand> Create(string sku, string name)
     {
         var skuResult = PartSku.Create(sku);
@@ -21,11 +16,10 @@ public class DefinePartCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<DefinePartCommand>(combined.Errors);
 
-        return Result.Ok(new DefinePartCommand
-        {
-            Sku = skuResult.Value,
-            Name = nameResult.Value
-        });
+        return Result.Ok(new DefinePartCommand(
+            skuResult.Value,
+            nameResult.Value
+        ));
     }
 }
 

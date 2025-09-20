@@ -4,25 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Part.Queries;
 
-public class GetAllPartsQuery : IQuery<GetAllPartsResult>
+public sealed record GetAllPartsQuery(int Page, int PageSize) : IQuery<GetAllPartsResult>
 {
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 20;
-
     public static Result<GetAllPartsQuery> Create(int page = 1, int pageSize = 20)
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
         if (pageSize > 100) pageSize = 100;
 
-        return Result.Ok(new GetAllPartsQuery
-        {
-            Page = page,
-            PageSize = pageSize
-        });
+        return Result.Ok(new GetAllPartsQuery(
+            page,
+            pageSize
+        ));
     }
-
-    private GetAllPartsQuery() { }
 }
 
 public class GetAllPartsResult

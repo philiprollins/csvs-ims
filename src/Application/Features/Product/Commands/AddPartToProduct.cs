@@ -4,13 +4,8 @@ using Library.Interfaces;
 
 namespace Application.Features.Product.Commands;
 
-public class AddPartToProductCommand : ICommand
+public sealed record AddPartToProductCommand(ProductSku ProductSku, ProductPart ProductPart) : ICommand
 {
-    public ProductSku ProductSku { get; set; } = null!;
-    public ProductPart ProductPart { get; set; } = null!;
-
-    private AddPartToProductCommand() { }
-
     public static Result<AddPartToProductCommand> Create(string productSku, string partSku, int quantity)
     {
         var productSkuResult = ProductSku.Create(productSku);
@@ -21,11 +16,7 @@ public class AddPartToProductCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<AddPartToProductCommand>(combined.Errors);
 
-        return Result.Ok(new AddPartToProductCommand
-        {
-            ProductSku = productSkuResult.Value,
-            ProductPart = productPartResult.Value
-        });
+        return Result.Ok(new AddPartToProductCommand(productSkuResult.Value, productPartResult.Value));
     }
 }
 

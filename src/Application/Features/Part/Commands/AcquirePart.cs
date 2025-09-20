@@ -4,33 +4,25 @@ using Library.Interfaces;
 
 namespace Application.Features.Part.Commands;
 
-public class AcquirePartCommand : ICommand
+public sealed record AcquirePartCommand(PartSku Sku, Quantity Quantity, string Justification) : ICommand
 {
-    public PartSku Sku { get; set; } = null!;
-    public Quantity Quantity { get; set; } = null!;
-    public string Justification { get; set; } = string.Empty;
-
-    private AcquirePartCommand() { }
-
     public static Result<AcquirePartCommand> Create(string sku, int quantity, string justification)
     {
-        var skuResult = PartSku.Create(sku);
+        var skuResult      = PartSku.Create(sku);
         var quantityResult = Quantity.Create(quantity);
+        var justificationResult = string.IsNullOrWhiteSpace(justification)
+            ? Result.Fail("justification", "Justification is required")
+            : Result.Ok();
 
-        var combined = Result.Combine(skuResult, quantityResult);
-
+        var combined = Result.Combine(skuResult, quantityResult, justificationResult);
         if (combined.IsFailure)
             return Result.Fail<AcquirePartCommand>(combined.Errors);
 
-        if (string.IsNullOrWhiteSpace(justification))
-            return Result.Fail<AcquirePartCommand>("justification", "Justification is required");
-
-        return Result.Ok(new AcquirePartCommand
-        {
-            Sku = skuResult.Value,
-            Quantity = quantityResult.Value,
-            Justification = justification.Trim()
-        });
+        return Result.Ok(new AcquirePartCommand(
+            skuResult.Value,
+            quantityResult.Value,
+            justification.Trim()
+        ));
     }
 }
 
