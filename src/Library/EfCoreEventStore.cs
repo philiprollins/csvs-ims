@@ -173,38 +173,76 @@ public class EFCoreEventStore(EventStoreDbContext dbContext, IEventBus eventBus,
             return Result.Fail("Concurrency conflict: expected version " + expectedVersion + " but found " + currentVersion);
         }
 
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        try
+        var isRelational = dbContext.Database.IsRelational();
+        if (isRelational)
         {
-            var eventList = events.ToList();
-            var eventModels = new List<EventModel>();
-            int sequence = expectedVersion + 1;
-
-            foreach (var e in eventList)
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
             {
-                eventModels.Add(new EventModel
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    AggregateId = aggregateId,
-                    Sequence = sequence++,
-                    EventType = e.GetType().AssemblyQualifiedName ?? throw new InvalidOperationException($"Event type for '{e.GetType().Name}' is null."),
-                    EventData = JsonSerializer.Serialize(e, e.GetType(), options),
-                    Timestamp = e.Timestamp
-                });
-            }
+                var eventList = events.ToList();
+                var eventModels = new List<EventModel>();
+                int sequence = expectedVersion + 1;
 
-            await dbContext.Events.AddRangeAsync(eventModels);
-            await dbContext.SaveChangesAsync();
-            await eventBus.DispatchManyAsync(eventList);
-            await transaction.CommitAsync();
-            logger.LogInformation("Saved {Count} events for aggregate {AggregateId}", eventList.Count, aggregateId);
-            return Result.Ok();
+                foreach (var e in eventList)
+                {
+                    eventModels.Add(new EventModel
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        AggregateId = aggregateId,
+                        Sequence = sequence++,
+                        EventType = e.GetType().AssemblyQualifiedName ?? throw new InvalidOperationException($"Event type for '{e.GetType().Name}' is null."),
+                        EventData = JsonSerializer.Serialize(e, e.GetType(), options),
+                        Timestamp = e.Timestamp
+                    });
+                }
+
+                await dbContext.Events.AddRangeAsync(eventModels);
+                await dbContext.SaveChangesAsync();
+                await eventBus.DispatchManyAsync(eventList);
+                await transaction.CommitAsync();
+                logger.LogInformation("Saved {Count} events for aggregate {AggregateId}", eventList.Count, aggregateId);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                logger.LogError(ex, "Failed to save events for aggregate {AggregateId}", aggregateId);
+                return Result.Fail("Failed to save events: " + ex.Message);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await transaction.RollbackAsync();
-            logger.LogError(ex, "Failed to save events for aggregate {AggregateId}", aggregateId);
-            return Result.Fail("Failed to save events: " + ex.Message);
+            // InMemory provider: no transactions, just save and dispatch
+            try
+            {
+                var eventList = events.ToList();
+                var eventModels = new List<EventModel>();
+                int sequence = expectedVersion + 1;
+
+                foreach (var e in eventList)
+                {
+                    eventModels.Add(new EventModel
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        AggregateId = aggregateId,
+                        Sequence = sequence++,
+                        EventType = e.GetType().AssemblyQualifiedName ?? throw new InvalidOperationException($"Event type for '{e.GetType().Name}' is null."),
+                        EventData = JsonSerializer.Serialize(e, e.GetType(), options),
+                        Timestamp = e.Timestamp
+                    });
+                }
+
+                await dbContext.Events.AddRangeAsync(eventModels);
+                await dbContext.SaveChangesAsync();
+                await eventBus.DispatchManyAsync(eventList);
+                logger.LogInformation("Saved {Count} events for aggregate {AggregateId} (InMemory)", eventList.Count, aggregateId);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to save events for aggregate {AggregateId} (InMemory)", aggregateId);
+                return Result.Fail("Failed to save events: " + ex.Message);
+            }
         }
     }
 }
