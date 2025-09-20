@@ -6,16 +6,11 @@ namespace Application.Features.Part.Commands;
 
 public class AcquirePartCommand : ICommand
 {
-    public PartSku Sku { get; set; }
-    public Quantity Quantity { get; set; }
-    public string Justification { get; set; }
+    public PartSku Sku { get; set; } = null!;
+    public Quantity Quantity { get; set; } = null!;
+    public string Justification { get; set; } = string.Empty;
 
-    private AcquirePartCommand(PartSku sku, Quantity quantity, string justification)
-    {
-        Sku = sku;
-        Quantity = quantity;
-        Justification = justification;
-    }
+    private AcquirePartCommand() { }
 
     public static Result<AcquirePartCommand> Create(string sku, int quantity, string justification)
     {
@@ -30,7 +25,12 @@ public class AcquirePartCommand : ICommand
         if (string.IsNullOrWhiteSpace(justification))
             return Result.Fail<AcquirePartCommand>("justification", "Justification is required");
 
-        return Result.Ok(new AcquirePartCommand(skuResult.Value, quantityResult.Value, justification.Trim()));
+        return Result.Ok(new AcquirePartCommand
+        {
+            Sku = skuResult.Value,
+            Quantity = quantityResult.Value,
+            Justification = justification.Trim()
+        });
     }
 }
 

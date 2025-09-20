@@ -34,7 +34,7 @@ public class GetAllProductsQueryHandlerTests : IDisposable
     {
         // Arrange
         var handler = new GetAllProductsQueryHandler(_dbContext);
-        var query = new GetAllProductsQuery();
+        var query = GetAllProductsQuery.Create().Value;
 
         // Act
         var result = await handler.HandleAsync(query);
@@ -49,7 +49,7 @@ public class GetAllProductsQueryHandlerTests : IDisposable
     {
         // Arrange
         var handler = new GetAllProductsQueryHandler(_dbContext);
-        var query = new GetAllProductsQuery();
+        var query = GetAllProductsQuery.Create().Value;
 
         // Add products in non-alphabetical order
         await _dbContext.ProductSummary.AddRangeAsync(
@@ -165,7 +165,7 @@ public class GetProductBySkuQueryHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_WithEmptySku_ReturnsFailure()
+    public Task Create_WithEmptySku_ReturnsFailure()
     {
         // Act
         var result = GetProductBySkuQuery.Create("");
@@ -174,10 +174,12 @@ public class GetProductBySkuQueryHandlerTests : IDisposable
         Assert.False(result.IsSuccess);
         Assert.Contains("sku", result.Errors);
         Assert.Equal("SKU cannot be empty", result.Errors["sku"]);
+
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Create_WithWhitespaceSku_ReturnsFailure()
+    public Task Create_WithWhitespaceSku_ReturnsFailure()
     {
         // Act
         var result = GetProductBySkuQuery.Create("   ");
@@ -186,6 +188,8 @@ public class GetProductBySkuQueryHandlerTests : IDisposable
         Assert.False(result.IsSuccess);
         Assert.Contains("sku", result.Errors);
         Assert.Equal("SKU cannot be empty", result.Errors["sku"]);
+
+        return Task.CompletedTask;
     }
 
     public void Dispose()

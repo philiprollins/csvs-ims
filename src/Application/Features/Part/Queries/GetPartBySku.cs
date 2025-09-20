@@ -7,12 +7,9 @@ namespace Application.Features.Part.Queries;
 
 public class GetPartBySkuQuery : IQuery<Result<GetPartBySkuResult>>
 {
-    public PartSku Sku { get; set; }
+    public PartSku Sku { get; set; } = null!;
 
-    private GetPartBySkuQuery(PartSku sku)
-    {
-        Sku = sku;
-    }
+    private GetPartBySkuQuery() { }
 
     public static Result<GetPartBySkuQuery> Create(string sku)
     {
@@ -20,7 +17,10 @@ public class GetPartBySkuQuery : IQuery<Result<GetPartBySkuResult>>
         if (skuResult.IsFailure)
             return Result.Fail<GetPartBySkuQuery>(skuResult.Errors);
 
-        return Result.Ok(new GetPartBySkuQuery(skuResult.Value));
+        return Result.Ok(new GetPartBySkuQuery
+        {
+            Sku = skuResult.Value
+        });
     }
 }
 

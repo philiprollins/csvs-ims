@@ -6,14 +6,10 @@ namespace Application.Features.Product.Commands;
 
 public class AddPartToProductCommand : ICommand
 {
-    public ProductSku ProductSku { get; set; }
-    public ProductPart ProductPart { get; set; }
+    public ProductSku ProductSku { get; set; } = null!;
+    public ProductPart ProductPart { get; set; } = null!;
 
-    private AddPartToProductCommand(ProductSku productSku, ProductPart productPart)
-    {
-        ProductSku = productSku;
-        ProductPart = productPart;
-    }
+    private AddPartToProductCommand() { }
 
     public static Result<AddPartToProductCommand> Create(string productSku, string partSku, int quantity)
     {
@@ -25,7 +21,11 @@ public class AddPartToProductCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<AddPartToProductCommand>(combined.Errors);
 
-        return Result.Ok(new AddPartToProductCommand(productSkuResult.Value, productPartResult.Value));
+        return Result.Ok(new AddPartToProductCommand
+        {
+            ProductSku = productSkuResult.Value,
+            ProductPart = productPartResult.Value
+        });
     }
 }
 

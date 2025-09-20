@@ -9,6 +9,8 @@ public class GetProductBySkuQuery : IQuery<Result<ProductDetailReadModel?>>
 {
     public string Sku { get; set; } = string.Empty;
 
+    private GetProductBySkuQuery() { }
+
     public static Result<GetProductBySkuQuery> Create(string sku)
     {
         if (string.IsNullOrWhiteSpace(sku))

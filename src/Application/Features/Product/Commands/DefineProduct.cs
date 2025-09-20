@@ -6,14 +6,10 @@ namespace Application.Features.Product.Commands;
 
 public class DefineProductCommand : ICommand
 {
-    public ProductSku Sku { get; set; }
-    public ProductName Name { get; set; }
+    public ProductSku Sku { get; set; } = null!;
+    public ProductName Name { get; set; } = null!;
 
-    private DefineProductCommand(ProductSku sku, ProductName name)
-    {
-        Sku = sku;
-        Name = name;
-    }
+    private DefineProductCommand() { }
 
     public static Result<DefineProductCommand> Create(string sku, string name)
     {
@@ -25,7 +21,11 @@ public class DefineProductCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<DefineProductCommand>(combined.Errors);
 
-        return Result.Ok(new DefineProductCommand(skuResult.Value, nameResult.Value));
+        return Result.Ok(new DefineProductCommand
+        {
+            Sku = skuResult.Value,
+            Name = nameResult.Value
+        });
     }
 }
 

@@ -51,7 +51,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
     {
         // Arrange
         var handler = new GetAllPartsQueryHandler(_partsDbContext);
-        var query = GetAllPartsQuery.Create(1, 10);
+        var query = GetAllPartsQuery.Create(1, 10).Value;
 
         // Act
         var result = await handler.HandleAsync(query, CancellationToken.None);
@@ -71,7 +71,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
         // Arrange
         await SetupTestData();
         var handler = new GetAllPartsQueryHandler(_partsDbContext);
-        var query = GetAllPartsQuery.Create(1, 10);
+        var query = GetAllPartsQuery.Create(1, 10).Value;
 
         // Act
         var result = await handler.HandleAsync(query, CancellationToken.None);
@@ -99,7 +99,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
         // Arrange
         await SetupTestData();
         var handler = new GetAllPartsQueryHandler(_partsDbContext);
-        var query = GetAllPartsQuery.Create(1, 1); // Page 1, size 1
+        var query = GetAllPartsQuery.Create(1, 1).Value; // Page 1, size 1
 
         // Act
         var result = await handler.HandleAsync(query, CancellationToken.None);
@@ -123,7 +123,7 @@ public class GetAllPartsQueryHandlerTests : IDisposable
         // Arrange
         await SetupTestData();
         var handler = new GetAllPartsQueryHandler(_partsDbContext);
-        var query = GetAllPartsQuery.Create(0, 0); // Invalid values
+        var query = GetAllPartsQuery.Create(0, 0).Value; // Invalid values
 
         // Act
         var result = await handler.HandleAsync(query, CancellationToken.None);

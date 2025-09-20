@@ -5,7 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Product.Queries;
 
-public class GetAllProductsQuery : IQuery<Result<List<ProductSummaryReadModel>>> { }
+public class GetAllProductsQuery : IQuery<Result<List<ProductSummaryReadModel>>> 
+{
+    private GetAllProductsQuery() { }
+
+    public static Result<GetAllProductsQuery> Create()
+    {
+        return Result.Ok(new GetAllProductsQuery());
+    }
+}
 
 public class GetAllProductsQueryHandler(PartsDbContext dbContext)
     : IQueryHandler<GetAllProductsQuery, Result<List<ProductSummaryReadModel>>>

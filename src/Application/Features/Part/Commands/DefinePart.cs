@@ -6,14 +6,10 @@ namespace Application.Features.Part.Commands;
 
 public class DefinePartCommand : ICommand
 {
-    public PartSku Sku { get; set; }
-    public PartName Name { get; set; }
+    public PartSku Sku { get; set; } = null!;
+    public PartName Name { get; set; } = null!;
 
-    private DefinePartCommand(PartSku sku, PartName name)
-    {
-        Sku = sku;
-        Name = name;
-    }
+    private DefinePartCommand() { }
 
     public static Result<DefinePartCommand> Create(string sku, string name)
     {
@@ -25,7 +21,11 @@ public class DefinePartCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<DefinePartCommand>(combined.Errors);
 
-        return Result.Ok(new DefinePartCommand(skuResult.Value, nameResult.Value));
+        return Result.Ok(new DefinePartCommand
+        {
+            Sku = skuResult.Value,
+            Name = nameResult.Value
+        });
     }
 }
 

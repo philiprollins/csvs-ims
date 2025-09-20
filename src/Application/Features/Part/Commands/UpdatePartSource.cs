@@ -6,14 +6,10 @@ namespace Application.Features.Part.Commands;
 
 public class UpdatePartSourceCommand : ICommand
 {
-    public PartSku Sku { get; set; }
-    public PartSource Source { get; set; }
+    public PartSku Sku { get; set; } = null!;
+    public PartSource Source { get; set; } = null!;
 
-    private UpdatePartSourceCommand(PartSku sku, PartSource source)
-    {
-        Sku = sku;
-        Source = source;
-    }
+    private UpdatePartSourceCommand() { }
 
     public static Result<UpdatePartSourceCommand> Create(string sku, string sourceName, string sourceUri)
     {
@@ -25,7 +21,11 @@ public class UpdatePartSourceCommand : ICommand
         if (combined.IsFailure)
             return Result.Fail<UpdatePartSourceCommand>(combined.Errors);
 
-        return Result.Ok(new UpdatePartSourceCommand(skuResult.Value, sourceResult.Value));
+        return Result.Ok(new UpdatePartSourceCommand
+        {
+            Sku = skuResult.Value,
+            Source = sourceResult.Value
+        });
     }
 }
 
