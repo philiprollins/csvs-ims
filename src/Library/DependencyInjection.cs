@@ -81,4 +81,47 @@ public static class DependencyInjection
 
         return services;
     }
+
+    /// <summary>
+    /// Registers dispatchers and auto-discovers all ICommandHandler<> and IQueryHandler<,> in the Application assembly.
+    /// Call this once from the API (e.g., Program.cs).
+    /// </summary>
+    public static IServiceCollection AddApplication(this IServiceCollection services, Assembly appAssembly)
+    {
+        services.AddScoped<ICommandDispatcher, CommandDispatcher>();
+        services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+
+        RegisterCommandHandlers(services, appAssembly);
+        RegisterQueryHandlers(services, appAssembly);
+
+        return services;
+    }
+
+    private static void RegisterCommandHandlers(IServiceCollection services, Assembly assembly)
+    {
+        var handlerInterface = typeof(ICommandHandler<,>);
+
+        var handlers = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface)
+                .Select(i => new { Service = i, Impl = t }));
+
+        foreach (var h in handlers)
+            services.AddScoped(h.Service, h.Impl);
+    }
+
+    private static void RegisterQueryHandlers(IServiceCollection services, Assembly assembly)
+    {
+        var handlerInterface = typeof(IQueryHandler<,>);
+
+        var handlers = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface)
+                .Select(i => new { Service = i, Impl = t }));
+
+        foreach (var h in handlers)
+            services.AddScoped(h.Service, h.Impl);
+    }
 }
